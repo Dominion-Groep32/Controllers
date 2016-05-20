@@ -1,4 +1,6 @@
-package Servlet;
+package Controllers;
+
+
 
 
 import java.io.IOException;
@@ -135,7 +137,7 @@ public class DominionServlet extends HttpServlet {
 			break;
 		case "stopBeurt":
 			gameEngine.brengAlleKaartenNaarAflegstapel();
-			gameEngine.spelNogNietBeÃ«indigd();
+			gameEngine.spelNogNietBeëindigd();
 			gameEngine.geefHuidigeSpeler().herstelWaarden();
 			gameEngine.volgendeSpeler();
 			
