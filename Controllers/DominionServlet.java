@@ -21,6 +21,31 @@ public class DominionServlet extends HttpServlet {
     public DominionServlet() {
         super();
     }
+    private void kopen(HttpServletRequest request, HttpServletResponse response,SpelFuncties engine) throws ServletException, IOException {
+    	JSONObject jsonObj = new JSONObject();
+    	String gekozenKaart = request.getParameter("kaart");
+    	System.out.println(engine.geefHuidigeSpeler().geefAflegStapel().size());
+    	
+    	System.out.print(gekozenKaart);
+    	int index = 0;
+
+		for (int i = 0; i < engine.geefLijstKaartenVanHetSpel().size(); i++) {
+			if (gekozenKaart.equals(engine.geefLijstKaartenVanHetSpel().get(i).geefNaam())) {
+				index = i;
+				engine.brengGekochteKaartNaarAflegstapel(engine.geefLijstKaartenVanHetSpel().get(i));
+			}
+		int kost = engine.geefLijstKaartenVanHetSpel().get(index).geefKost();
+		
+		engine.geefHuidigeSpeler().verminderGeld(kost);
+		engine.geefHuidigeSpeler().verminderAankoop(1);
+		System.out.println(engine.geefHuidigeSpeler().geefAflegStapel().size());
+		jsonObj.put("naam", gekozenKaart);
+		jsonObj.put("kost", kost);
+		
+		response.getWriter().write(jsonObj.toString());
+		}
+		
+    }
     
   
     private void spelersToevoegen(HttpServletRequest request, HttpServletResponse response, SpelFuncties engine) throws ServletException, IOException {	
@@ -40,7 +65,6 @@ public class DominionServlet extends HttpServlet {
     private void geefKaartenInHandVanDeHuidigeSpeler(HttpServletRequest request, HttpServletResponse response, SpelFuncties engine) throws ServletException, IOException {
     	JSONArray arrayObj = new JSONArray();
     	
-    	engine.trekKaart(5);
     	
 		for(int i=0; i<engine.geefHuidigeSpeler().geefKaartenInHand().size();i++){
 			arrayObj.put(i, engine.geefHuidigeSpeler().geefKaartenInHand().get(i).geefNaam());
@@ -48,10 +72,13 @@ public class DominionServlet extends HttpServlet {
 		
 		response.getWriter().write(arrayObj.toString());
     }
+    
+   
 
     private void genereerActieKaart(HttpServletRequest request, HttpServletResponse response, SpelFuncties engine) throws ServletException, IOException {
     	
     	JSONArray arrayObj = new JSONArray();
+    	
     	List<Kaart> actieKaarten = engine.actiekaartenGenereren();
 		for(int i=0; i <10;i++){
 			arrayObj.put(i, actieKaarten.get(i).geefNaam());
@@ -59,45 +86,27 @@ public class DominionServlet extends HttpServlet {
 		response.getWriter().write(arrayObj.toString());
     }
    
-    
-    private void kopen(HttpServletRequest request, HttpServletResponse response,SpelFuncties engine) throws ServletException, IOException {
-    	JSONObject jsonObj = new JSONObject();
-    	
-    	String gekozenKaart = request.getParameter("kaart");
-    	int index = 0;
-    	
-		List<Kaart> lijstWaarvanJeKanKopen = engine.kaartenDieJeKuntKopen();
-		engine.verminderTafelstapel(gekozenKaart);
-		
-		for (int i = 0; i < lijstWaarvanJeKanKopen.size(); i++) {
-			if (gekozenKaart.equals(lijstWaarvanJeKanKopen.get(i))) {
-				index = i;
-			}
-		}
-		
-		engine.verminderTafelstapel(lijstWaarvanJeKanKopen.get(index).geefNaam());
-		int kost = lijstWaarvanJeKanKopen.get(index).geefKost();
-		
-		engine.geefHuidigeSpeler().verminderGeld(kost);
-		engine.geefHuidigeSpeler().verminderAankoop(1);
-		
-		jsonObj.put("naam", gekozenKaart);
-		jsonObj.put("kost", kost);
-		
-		response.getWriter().write(jsonObj.toString());
-    }
-	
+
 	 private void geefInfoOverDeKaart(HttpServletRequest request, HttpServletResponse response,SpelFuncties engine) throws ServletException, IOException {
-    	JSONObject jsonObj = new JSONObject();
+		 JSONArray arrayObj = new JSONArray();
     	String gekozenKaart = request.getParameter("kaart");
-    	System.out.println(gekozenKaart);
-    	for (int i = 0; i < engine.geefHuidigeSpeler().geefKaartenInHand().size() ; i++) {
-			if (gekozenKaart.equals(engine.geefHuidigeSpeler().geefKaartenInHand().get(i))) {
-				System.out.println(engine.geefHuidigeSpeler().geefKaartenInHand().get(i).geefInfo());
-				jsonObj.put("info van de kaart: ",engine.geefHuidigeSpeler().geefKaartenInHand().get(i).geefInfo() );
-			}}
+    	String info ;
+    
     	
-    	response.getWriter().write(jsonObj.toString());
+    	for (int i = 0; i < engine.geefLijstKaartenVanHetSpel().size() ; i++) {
+    		
+			if (gekozenKaart.equals( engine.geefLijstKaartenVanHetSpel().get(i).geefNaam())) {
+				System.out.println(engine.geefLijstKaartenVanHetSpel().get(i).geefInfo());
+				info = engine.geefLijstKaartenVanHetSpel().get(i).geefInfo();
+				arrayObj.put(0,info);
+				break;
+				
+			}
+			
+    	}
+    
+    	
+    	response.getWriter().write(arrayObj.toString());
     	
     	
     }
@@ -109,6 +118,15 @@ public class DominionServlet extends HttpServlet {
 	    	arrayObj.put(2,"Aankoop: "+engine.geefHuidigeSpeler().geefAankoop());
 	    	arrayObj.put(3,"Acties: "+engine.geefHuidigeSpeler().geefActie());
 	    	response.getWriter().write(arrayObj.toString());
+	    }
+	 private void geefHuidigSpeelVeld(HttpServletRequest request, HttpServletResponse response, SpelFuncties engine) throws ServletException, IOException {
+	    	JSONArray arrayObj = new JSONArray();
+	    	
+			for(int i=0; i< engine.geefHuidigeSpeler().geefSpeelGebied().size();i++){
+				arrayObj.put(i, engine.geefHuidigeSpeler().geefSpeelGebied().get(i).geefNaam());
+			}
+			response.getWriter().write(arrayObj.toString());
+			
 	    }
     
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -142,7 +160,7 @@ public class DominionServlet extends HttpServlet {
 			gameEngine.volgendeSpeler();
 			
 			break;
-		case "kopen":
+		case "kaartenKopen":
 			kopen(request, response, gameEngine);
 			break;
 		case "huidigeWaarden":
@@ -152,6 +170,12 @@ public class DominionServlet extends HttpServlet {
 		case "infoOphalen":
 			geefInfoOverDeKaart(request,response,gameEngine);
 			break;
+		case "toonSpeelVeld":
+			gameEngine.brengAlleGeldkaartenUitHandNaarSpeelGebied();
+			geefHuidigSpeelVeld(request, response, gameEngine);
+			break;
+		case "trekKaartInHand":
+			gameEngine.trekKaartVanTrekStapel(5);
 			
 		
 		default:
