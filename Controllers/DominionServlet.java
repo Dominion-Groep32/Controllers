@@ -144,7 +144,7 @@ public class DominionServlet extends HttpServlet {
 			geefInfoOverDeKaart(request,response,gameEngine);
 			break;
 		case "brengGeldKaartenUitHandaarSpeelVeld":
-			gameEngine.brengAlleGeldkaartenUitHandNaarSpeelGebied();
+			gameEngine.brengAlleGeldkaartenUitHandNaarStapel(gameEngine.geefHuidigeSpeler().geefSpeelGebied());
 			break;
 		case "toonSpeelVeld":
 			
